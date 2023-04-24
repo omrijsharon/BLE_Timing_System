@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Race Results</title>
+  <link rel="stylesheet" type="text/css" href="race_results.css">
+  <script type="text/javascript" src="race_results.js"></script>
+</head>
+<body onload="loadTable()">
+  <h1>Race Results</h1>
+  <table>
+    <tr>
+      <th>Contestant</th>
+	  <th><input type="text" id="1_name" oninput="updateName(1, this.value)" /></th>
+      <th>Lap Count</th>
+      <th>Last Lap Time (sec)</th>
+      <th>Best Lap Time (sec)</th>
+      <th>RSSI</th>
+	  <th class="actions">
+		<button onclick="resetContestant(1)">Reset</button>
+		<button onclick="deleteContestant(1)">Delete</button>
+	  </th>
+    </tr>
+    <!-- The rows will be added dynamically by JavaScript -->
+  </table>
+</body>
+</html>
