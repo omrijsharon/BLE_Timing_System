@@ -8,17 +8,14 @@
 <body onload="loadTable()">
   <h1>Race Results</h1>
   <table>
-    <tr>
+    <tr class="header-row">
       <th>Contestant</th>
-	  <th><input type="text" id="1_name" oninput="updateName(1, this.value)" /></th>
       <th>Lap Count</th>
       <th>Last Lap Time (sec)</th>
       <th>Best Lap Time (sec)</th>
       <th>RSSI</th>
-	  <th class="actions">
-		<button onclick="resetContestant(1)">Reset</button>
-		<button onclick="deleteContestant(1)">Delete</button>
-	  </th>
+      <th class="actions">Reset</th>
+      <th class="actions">Delete</th>
     </tr>
     <!-- The rows will be added dynamically by JavaScript -->
   </table>

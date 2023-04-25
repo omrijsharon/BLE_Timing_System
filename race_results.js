@@ -1,42 +1,61 @@
 function loadTable() {
-  setInterval(updateTable, 1000);
+  setInterval(updateTable, 5000);
 }
 
-function updateName(index, newName) {
-  fetch(`/update_name?index=${index}&name=${encodeURIComponent(newName)}`, {
+function updateName(macAddress, newName) {
+  fetch(`/update_name?macAddress=${encodeURIComponent(macAddress)}&name=${encodeURIComponent(newName)}`, {
     method: "POST",
   }).catch((error) => {
     console.error("Error updating competitor name:", error);
   });
 }
 
-function createRow(index) {
+function createRow(macAddress, contestant) {
   const row = document.createElement("tr");
-  row.id = index;
+  row.id = macAddress;
 
   const nameCell = document.createElement("td");
   const nameInput = document.createElement("input");
   nameInput.type = "text";
-  nameInput.id = `${index}_name`;
-  nameInput.oninput = () => updateName(index, nameInput.value);
+  nameInput.id = `${macAddress}_name`;
+  nameInput.value = contestant.name || contestant.macAddress;
+  nameInput.addEventListener("change", () => updateName(macAddress, nameInput.value)); // Add this line
   nameCell.appendChild(nameInput);
   row.appendChild(nameCell);
 
   const lapCountCell = document.createElement("td");
-  lapCountCell.id = `${index}_lapCount`;
+  lapCountCell.id = `${macAddress}_lapCount`;
+  lapCountCell.innerText = contestant.lapsCount;
   row.appendChild(lapCountCell);
 
   const lastLapTimeCell = document.createElement("td");
-  lastLapTimeCell.id = `${index}_lastLapTime`;
+  lastLapTimeCell.id = `${macAddress}_lastLapTime`;
+  lastLapTimeCell.innerText = (contestant.lastLapTime / 1000).toFixed(2);
   row.appendChild(lastLapTimeCell);
 
   const bestLapTimeCell = document.createElement("td");
-  bestLapTimeCell.id = `${index}_bestLapTime`;
+  bestLapTimeCell.id = `${macAddress}_bestLapTime`;
+  bestLapTimeCell.innerText = (contestant.bestLapTime / 1000).toFixed(2);
   row.appendChild(bestLapTimeCell);
 
   const rssiCell = document.createElement("td");
-  rssiCell.id = `${index}_rssi`;
+  rssiCell.id = `${macAddress}_rssi`;
+  rssiCell.innerText = contestant.rssi;
   row.appendChild(rssiCell);
+
+  const resetCell = document.createElement("td");
+  const resetButton = document.createElement("button");
+  resetButton.innerText = "Reset";
+  resetButton.onclick = () => resetContestant(macAddress);
+  resetCell.appendChild(resetButton);
+  row.appendChild(resetCell);
+
+  const deleteCell = document.createElement("td");
+  const deleteButton = document.createElement("button");
+  deleteButton.innerText = "Delete";
+  deleteButton.onclick = () => deleteContestant(macAddress);
+  deleteCell.appendChild(deleteButton);
+  row.appendChild(deleteCell);
 
   return row;
 }
@@ -46,39 +65,55 @@ function updateTable() {
     .then((response) => response.json())
     .then((data) => {
       const table = document.querySelector("table");
+      const existingMacAddresses = new Set();
 
-      for (let i = 0; i < data.length; i++) {
-        let row = document.getElementById(`${i + 1}`);
+      for (const contestant of data) {
+        const macAddress = contestant.macAddress;
+        
+        // Skip processing if the macAddress is empty or undefined
+        if (!macAddress) {
+          continue;
+        }
+
+        existingMacAddresses.add(macAddress);
+        let row = document.getElementById(macAddress);
 
         if (!row) {
-          row = createRow(i + 1);
+          row = createRow(macAddress, contestant);
           table.appendChild(row);
         }
 
-        const nameInput = document.getElementById(`${i + 1}_name`);
-        if (nameInput.value !== data[i].name) {
-          nameInput.value = data[i].name;
+        const nameInput = document.getElementById(`${macAddress}_name`);
+        if (nameInput.value !== contestant.name && nameInput.value !== contestant.macAddress) {
+          nameInput.value = contestant.name || contestant.macAddress;
         }
-
-        document.getElementById(`${i + 1}_lapCount`).innerText = data[i].lapsCount;
-        document.getElementById(`${i + 1}_lastLapTime`).innerText = (data[i].lastLapTime / 1000).toFixed(2);
-        document.getElementById(`${i + 1}_bestLapTime`).innerText = (data[i].bestLapTime / 1000).toFixed(2);
-        document.getElementById(`${i + 1}_rssi`).innerText = data[i].rssi;
+        document.getElementById(`${macAddress}_lapCount`).innerText = contestant.lapsCount;
+        document.getElementById(`${macAddress}_lastLapTime`).innerText = (contestant.lastLapTime / 1000).toFixed(2);
+        document.getElementById(`${macAddress}_bestLapTime`).innerText = (contestant.bestLapTime / 1000).toFixed(2);
+        document.getElementById(`${macAddress}_rssi`).innerText = contestant.rssi;
       }
+
+      // Remove rows for contestants that are no longer in the data
+      // for (const row of table.querySelectorAll("tr")) {
+      //   if (!existingMacAddresses.has(row.id)) {
+      //     row.remove();
+      //   }
+      // }
     })
     .catch((error) => {
       console.error("Error fetching race results:", error);
     });
 }
 
-function resetContestant(index) {
-  fetch(`/reset_contestant?index=${index}`)
+
+function resetContestant(macAddress) {
+  fetch(`/reset_contestant?macAddress=${encodeURIComponent(macAddress)}`)
     .then((response) => {
       if (response.ok) {
-        alert(`Contestant ${index} has been reset.`);
+        alert(`Contestant ${macAddress} has been reset.`);
         updateTable();
       } else {
-        alert(`Error resetting contestant ${index}.`);
+        alert(`Error resetting contestant ${macAddress}.`);
       }
     })
     .catch((error) => {
@@ -86,17 +121,17 @@ function resetContestant(index) {
     });
 }
 
-function deleteContestant(index) {
-  fetch(`/delete_contestant?index=${index}`)
+function deleteContestant(macAddress) {
+  fetch(`/delete_contestant?macAddress=${encodeURIComponent(macAddress)}`)
     .then((response) => {
       if (response.ok) {
-        alert(`Contestant ${index} has been deleted.`);
+        alert(`Contestant ${macAddress} has been deleted.`);
         // Remove the row from the table
-        const row = document.getElementById(`${index}`);
+        const row = document.getElementById(`${macAddress}`);
         row.parentNode.removeChild(row);
         updateTable();
       } else {
-        alert(`Error deleting contestant ${index}.`);
+        alert(`Error deleting contestant ${macAddress}.`);
       }
     })
     .catch((error) => {
