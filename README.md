@@ -1,5 +1,5 @@
-# BLE_Timing_System
-A timing system for races based on ESP32 and uses Bluetooth Low Energy (BLE).
+# BLE Timing System
+A timing system for races. \nBased on ESP32 and uses Bluetooth Low Energy (BLE).
 
 ## How to use?
 * Connect the ground station to 5V power supply and position it in the finish gate.
