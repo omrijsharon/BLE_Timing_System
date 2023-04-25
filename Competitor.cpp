@@ -20,24 +20,15 @@ void Competitor::processRssiData()
 {
   int maximumIndex = -1;
   float maxRssi = -150;
-  if (rssiBuffer.size() < 3)
+
+  if (rssiBuffer.empty())
   {
-    // Handle the cases with only 1 or 2 measurement points
-    // Use the highest measurement point as the "closest" point
-    if (rssiBuffer.size() == 2)
-    {
-      maximumIndex = (rssiBuffer[0] > rssiBuffer[1]) ? 0 : 1;
-    }
-    updateLapInfo(timestampBuffer[maximumIndex], rssiBuffer[maximumIndex]);
     return;
   }
 
-  for (size_t i = 1; i < rssiBuffer.size() - 1; ++i)
+  for (size_t i = 0; i < rssiBuffer.size(); ++i)
   {
-    float prevDerivative = rssiBuffer[i] - rssiBuffer[i - 1];
-    float nextDerivative = rssiBuffer[i + 1] - rssiBuffer[i];
-
-    if (prevDerivative > 0 && nextDerivative < 0 && rssiBuffer[i] > maxRssi)
+    if (rssiBuffer[i] > maxRssi)
     {
       maxRssi = rssiBuffer[i];
       maximumIndex = i;
@@ -53,12 +44,15 @@ void Competitor::processRssiData()
 void Competitor::updateLapInfo(uint32_t timestamp, int rssi) {
   if (startTimestamp == 0)
   { // First pass, begining of the first lap
+    Serial.println("First pass detected");
     startTimestamp = timestamp;
     lastLapTimestamp = timestamp;
   } else
   { // New lap
     uint32_t currentLapTime = timestamp - lastLapTimestamp;
     lastLapTime = currentLapTime;
+    Serial.printf("New lap detected: %d ms\n", currentLapTime);
+    Serial.println();
     // if allLapTimes is full, remove the first element
     if (allLapTimes.size() == MAX_LAPS) {
         allLapTimes.erase(allLapTimes.begin());
