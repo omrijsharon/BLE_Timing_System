@@ -7,6 +7,7 @@ A timing system for races based on ESP32 and uses Bluetooth Low Energy (BLE).
 * Start racing!
 
 ## Features:
+* Easy to use: Plug and Play. No soldering is needed. Unplug when not needed.
 * Pass-By Detection: The ground station scans for beacons and counts a lap when the beacon's RSSI is maximal.
 * Real Time Race Info on your smartphone: The ground station is also an access point with a webpage. In the webpage you have access to all the relevant race information of each competitor.
 * Easy editing: in the webpage you can change each beacon name, and also reset and delete competitors.
