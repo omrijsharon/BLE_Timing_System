@@ -34,7 +34,17 @@ void deleteCompetitor(int index) {
 }
 
 int findCompetitorByMAC(const std::string& fullDeviceName) {
-  std::string macAddress = fullDeviceName.substr(strlen(Config::DEVICE_NAME_PREFIX) + 1);
+  // Extract the MAC address from the full device name if fullDeviceName starts with Config::DEVICE_NAME_PREFIX
+  //else if fullDeviceName length is 12 then it is a mac address and make macAddress=fullDeviceName
+  // else return -1
+  std::string macAddress = "";
+  if (fullDeviceName.length() == 12) {
+    macAddress = fullDeviceName;
+  } else if (fullDeviceName.length() > 12 && fullDeviceName.substr(0, strlen(Config::DEVICE_NAME_PREFIX)) == Config::DEVICE_NAME_PREFIX) {
+    macAddress = fullDeviceName.substr(strlen(Config::DEVICE_NAME_PREFIX) + 1);
+  } else {
+    return -1;
+  }
 
   for (int i = 0; i < MAX_DEVICES; i++) {
     if (competitors[i].macAddress.empty()) {
@@ -60,7 +70,10 @@ void handleGetResults(AsyncWebServerRequest *request) {
 
   for (int i = 0; i < MAX_DEVICES; i++) {
     JsonObject result = results.createNestedObject();
-    result["name"] = (competitors[i].name.empty()) ? competitors[i].macAddress : competitors[i].name;
+    if (!competitors[i].name.empty()) {
+      Serial.printf("Competitor %s has %d laps \r \n", competitors[i].name.c_str(), competitors[i].lapsCount);
+    }
+    result["name"] = competitors[i].name;
     result["macAddress"] = competitors[i].macAddress; // Add the macAddress field to the JSON object
     result["lapsCount"] = competitors[i].lapsCount;
     result["lastLapTime"] = competitors[i].lastLapTime;
@@ -107,8 +120,8 @@ public:
         int rssi = advertisedDevice->getRSSI();
         int ledIntensity = map(constrain(rssi, rssiMin, rssiMax), rssiMin, rssiMax, ledIntensityMin, ledIntensityMax);
         ledcWrite(pwmChannel, ledIntensity);
-        Serial.printf("Found device: %s, RSSI: %d, LED intensity: %d", advertisedDevice->getName().c_str(), rssi, ledIntensity);
-        Serial.println();
+        // Serial.printf("Found device: %s, RSSI: %d, LED intensity: %d", advertisedDevice->getName().c_str(), rssi, ledIntensity);
+        // Serial.println();
         competitors[competitorIndex].rssiBuffer.push_back(rssi);
         competitors[competitorIndex].timestampBuffer.push_back(millis());
         } else {
@@ -143,6 +156,9 @@ server.on("/update_name", HTTP_POST, [](AsyncWebServerRequest *request) {
   
   if (newName.length() > 0) {
     int index = findCompetitorByMAC(macAddress.c_str());
+    // print the new name and index of the competitor
+    Serial.printf("New name: %s, index: %d \r \n", newName.c_str(), index);
+    Serial.println();
     if (index >= 0 && index < MAX_DEVICES) {
       competitors[index].name = std::string(newName.c_str());
       request->send(200, "text/plain", "Name updated");
@@ -154,18 +170,40 @@ server.on("/update_name", HTTP_POST, [](AsyncWebServerRequest *request) {
   }
 });
 
-  server.on("/reset_contestant", HTTP_POST, [](AsyncWebServerRequest *request) {
-  int index = request->arg("index").toInt() - 1;
-  // Reset the contestant's data here
-  competitors[index].reset(); // Assuming there is a reset() function in the Competitor class
-  request->send(200, "text/plain", "Contestant reset");
+server.on("/reset_contestant", HTTP_POST, [](AsyncWebServerRequest *request) {
+  String macAddress = request->arg("macAddress");
+  int index = findCompetitorByMAC(macAddress.c_str());
+  // print the mac address and index of the competitor
+  Serial.printf("Resetting - MAC address: %s, index: %d \r \n", macAddress.c_str(), index);
+  if (index != -1) {
+    // Reset the contestant's data here
+    competitors[index].reset(); // Assuming there is a reset() function in the Competitor class
+    request->send(200, "text/plain", "Contestant reset");
+  } else {
+    request->send(400, "text/plain", "Contestant not found");
+  }
+});
+
+server.on("/reset_all_contestants", HTTP_POST, [](AsyncWebServerRequest *request) {
+  // Loop through all contestants and reset their data
+  for (int i = 0; i < MAX_DEVICES; i++) {
+    if (!competitors[i].macAddress.empty()) {
+      competitors[i].reset();
+    }
+  }
+  request->send(200, "text/plain", "All contestants reset");
 });
 
 server.on("/delete_contestant", HTTP_POST, [](AsyncWebServerRequest *request) {
-  int index = request->arg("index").toInt() - 1;
-  // Delete the contestant's data here
-  deleteCompetitor(index); // Assuming there is a delete() function in the Competitor class
-  request->send(200, "text/plain", "Contestant deleted");
+  String macAddress = request->arg("macAddress");
+  int index = findCompetitorByMAC(macAddress.c_str());
+  if (index != -1) {
+    // Delete the contestant's data here
+    deleteCompetitor(index); // Assuming there is a delete() function in the Competitor class
+    request->send(200, "text/plain", "Contestant deleted");
+  } else {
+    request->send(400, "text/plain", "Contestant not found");
+  }
 });
 
   // Print the SSID and password

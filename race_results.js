@@ -1,26 +1,53 @@
+window.onload = function () {
+  const resetAllBtn = document.getElementById("resetAllBtn");
+  resetAllBtn.onclick = () => resetAllContestants();
+};
+
 function loadTable() {
-  setInterval(updateTable, 5000);
+  setInterval(updateTable, 10000);
 }
 
 function updateName(macAddress, newName) {
   fetch(`/update_name?macAddress=${encodeURIComponent(macAddress)}&name=${encodeURIComponent(newName)}`, {
     method: "POST",
-  }).catch((error) => {
-    console.error("Error updating competitor name:", error);
-  });
+  })
+    .then((response) => {
+      if (response.ok) {
+        updateTable();
+        console.log("Name updated successfully");
+      } else {
+        response.text().then((errorText) => {
+          console.error("Error updating competitor name:", errorText);
+        });
+      }
+    })
+    .catch((error) => {
+      console.error("Error updating competitor name:", error);
+    });
 }
 
 function createRow(macAddress, contestant) {
   const row = document.createElement("tr");
   row.id = macAddress;
 
+  // Add MAC address column
+  const macAddressCell = document.createElement("td");
+  macAddressCell.innerText = macAddress;
+  row.appendChild(macAddressCell);
+
+  // Add name column with editable input
   const nameCell = document.createElement("td");
-  const nameInput = document.createElement("input");
-  nameInput.type = "text";
-  nameInput.id = `${macAddress}_name`;
-  nameInput.value = contestant.name || contestant.macAddress;
-  nameInput.addEventListener("change", () => updateName(macAddress, nameInput.value)); // Add this line
-  nameCell.appendChild(nameInput);
+  const nameText = document.createElement("span");
+  nameText.id = `${macAddress}_name`;
+  nameText.innerText = contestant.name || "Enter Name";
+  nameText.style.cursor = 'pointer';
+  nameText.addEventListener("click", () => {
+    const newName = prompt("Enter the new name for the contestant:", "");
+    if (newName && newName !== nameText.innerText) {
+      updateName(macAddress, newName);
+    }
+  });
+  nameCell.appendChild(nameText);
   row.appendChild(nameCell);
 
   const lapCountCell = document.createElement("td");
@@ -69,9 +96,9 @@ function updateTable() {
 
       for (const contestant of data) {
         const macAddress = contestant.macAddress;
-        
+
         // Skip processing if the macAddress is empty or undefined
-        if (!macAddress) {
+        if (!macAddress || macAddress.length !== 12) {
           continue;
         }
 
@@ -83,9 +110,9 @@ function updateTable() {
           table.appendChild(row);
         }
 
-        const nameInput = document.getElementById(`${macAddress}_name`);
-        if (nameInput.value !== contestant.name && nameInput.value !== contestant.macAddress) {
-          nameInput.value = contestant.name || contestant.macAddress;
+        const nameText = document.getElementById(`${macAddress}_name`);
+        if (!nameText.innerText && (contestant.name || contestant.macAddress)) {
+          nameText.innerText = contestant.name || "Enter Name";
         }
         document.getElementById(`${macAddress}_lapCount`).innerText = contestant.lapsCount;
         document.getElementById(`${macAddress}_lastLapTime`).innerText = (contestant.lastLapTime / 1000).toFixed(2);
@@ -107,7 +134,9 @@ function updateTable() {
 
 
 function resetContestant(macAddress) {
-  fetch(`/reset_contestant?macAddress=${encodeURIComponent(macAddress)}`)
+  fetch(`/reset_contestant?macAddress=${encodeURIComponent(macAddress)}`, {
+    method: "POST",
+  })
     .then((response) => {
       if (response.ok) {
         alert(`Contestant ${macAddress} has been reset.`);
@@ -121,8 +150,27 @@ function resetContestant(macAddress) {
     });
 }
 
+function resetAllContestants() {
+  fetch(`/reset_all_contestants`, {
+    method: "POST",
+  })
+    .then((response) => {
+      if (response.ok) {
+        alert(`All contestants have been reset.`);
+        updateTable();
+      } else {
+        alert(`Error resetting all contestants.`);
+      }
+    })
+    .catch((error) => {
+      console.error("Error resetting all contestants:", error);
+    });
+}
+
 function deleteContestant(macAddress) {
-  fetch(`/delete_contestant?macAddress=${encodeURIComponent(macAddress)}`)
+  fetch(`/delete_contestant?macAddress=${encodeURIComponent(macAddress)}`, {
+    method: "POST",
+  })
     .then((response) => {
       if (response.ok) {
         alert(`Contestant ${macAddress} has been deleted.`);
