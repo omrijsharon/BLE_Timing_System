@@ -2,8 +2,8 @@
 A timing system for races. Based on ESP32. Uses Bluetooth Low Energy (BLE).
 
 ## How to use?
-* Connect the ground station to 5V power supply and position it in the finish gate.
-* Connect the beacon module to 5V (from the flight controller or using [this BEC](https://s.click.aliexpress.com/e/_DddLQzr) from the LiPo balance)
+* Connect a 5V power supply to the ground station USB and position it in the finish gate.
+* Connect 5V to the beacon module (voltage can be drawn from the flight controller or using [this BEC](https://s.click.aliexpress.com/e/_DddLQzr) connected to the LiPo battery balance).
 * Start racing!
 
 ## Features:
