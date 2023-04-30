@@ -13,6 +13,7 @@ A timing system for races. Based on ESP32. Uses Bluetooth Low Energy (BLE).
 * *Easy editing:* in the webpage you can change each beacon name, and also reset and delete competitors.
 * *LED lights:* The ground station outputs PWM signal proportional to the beacon's RSSI that is being detected at the moment.
 * *Each beacon is unique:* the beacons identifier is its MAC Address. This mean that even though you flash the same hex file to all your beacons- they will all be distinguished.
+* *Variable Power Level:*: the module on the drone can be accessed using bluetooth and its power level can be changed.
 
 ## Hardware
 Seeed Studio XIAO ESP32C3: 5-8 USD.
