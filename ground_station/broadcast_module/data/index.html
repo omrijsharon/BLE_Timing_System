@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Race Results</title>
+  <link rel="stylesheet" type="text/css" href="race_results.css">
+  <script type="text/javascript" src="race_results.js"></script>
+</head>
+<body onload="loadTable()">
+  <h1>Race Results</h1>
+  <div class="flex-container">
+    <div class="button-container">
+      <button id="resetAllBtn">Reset All</button>
+    </div>
+    <div class="algorithm-container">
+      <label for="algorithm">RSSI Processing Algorithm:</label>
+      <select id="algorithm">
+        <option value="CLOSEST">Closest</option>
+        <option value="FIRST">First</option>
+        <option value="QUADRATIC">Quadratic</option>
+      </select>
+    </div>
+  </div>
+  <table>
+    <tr class="header-row">
+      <th>Lap Times</th>
+      <th>MAC Address</th>
+      <th>Name</th>
+      <th>Lap Count</th>
+      <th>Last Lap Time (sec)</th>
+      <th>Best Lap Time (sec)</th>
+      <th>RSSI</th>
+      <th class="actions">Reset</th>
+      <th class="actions">Delete</th>
+    </tr>
+    <!-- The rows will be added dynamically by JavaScript -->
+  </table>
+  <div id="lapTimesModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Lap Times</h2>
+      <pre id="lapTimesContent"></pre>
+    </div>
+  </div>
+</body>
+</html>

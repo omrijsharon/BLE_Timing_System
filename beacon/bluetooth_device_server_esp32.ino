@@ -4,15 +4,16 @@
 #include <esp_bt.h>
 #include <WiFi.h>
 #include <NeoPixelBus.h>
+#include <EEPROM.h>
 
 #define LED_COUNT 1
 #define LED_PIN 7 // The WS2812 data pin on LOLIN C3 Mini is GPIO7
 
-// #define USE_WS2812_LED // Comment this line out to use the built-in LED instead of the WS2812 LED
+#define USE_WS2812_LED // Comment this line out to use the built-in LED instead of the WS2812 LED
 
 #ifdef USE_WS2812_LED
-NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod> strip(LED_COUNT, LED_PIN);
-const int ledPin = LED_BUILTIN;
+  NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod> strip(LED_COUNT, LED_PIN);
+  const int ledPin = LED_BUILTIN;
 #endif
 
 const char* DEVICE_NAME_PREFIX = "DIL";
@@ -45,7 +46,17 @@ void setPowerLevel(float power) {
   int8_t power_index = round((power + 27) / 3); // Convert power to index
   esp_power_level_t power_level = (esp_power_level_t)power_index;
   BLEDevice::setPower(power_level);
-  Serial.print("Power level set to: ");
+    // Check if the new value is different from the stored value
+  float storedPower;
+  EEPROM.get(0, storedPower);
+  if (storedPower != power) {
+    // Save the new power level to EEPROM
+    EEPROM.put(0, power);
+    EEPROM.commit();
+    Serial.print("Power level set to: ");
+  } else {
+    Serial.print("Power level was not changed and it is still set to: ");
+  }
   Serial.print(power);
   Serial.println(" dBm");
   #ifdef USE_WS2812_LED
@@ -75,6 +86,9 @@ class PowerLevelCallback : public BLECharacteristicCallbacks {
 void setup() {
   #ifdef USE_WS2812_LED
     pinMode(ledPin, OUTPUT);
+    strip.Begin();
+    strip.Show();
+    blinkLED();
   #endif
   Serial.begin(115200);
   // Get the MAC address
@@ -86,7 +100,15 @@ void setup() {
 
  // Initialize the device with the new name
   BLEDevice::init(deviceName.c_str());
-  BLEDevice::setPower(ESP_PWR_LVL_P9);
+  // Initialize EEPROM with the size of a float (4 bytes)
+  EEPROM.begin(sizeof(float));
+  // Load the saved power level from EEPROM and set it
+  float savedPower;
+  EEPROM.get(0, savedPower);
+  if (isnan(savedPower)) {
+    savedPower = 18;
+  }
+  setPowerLevel(savedPower);
   BLEServer *pServer = BLEDevice::createServer();
   BLEService *pService = pServer->createService(SERVICE_UUID);
     pCharacteristic = pService->createCharacteristic(
@@ -106,11 +128,6 @@ void setup() {
   pAdvertising->setMinPreferred(0x12);
   BLEDevice::startAdvertising();
   Serial.println("Racing module is up and running!");
-  #ifdef USE_WS2812_LED
-    strip.Begin();
-    strip.Show();
-    blinkLED();
-  #endif
 
   Serial.println("Enter power level in dBm (from -27 to 18):");
 }
