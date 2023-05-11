@@ -17,7 +17,7 @@ A timing system for races. Based on ESP32. Uses Bluetooth Low Energy (BLE).
 * *Variable Power Level:*: the module on the drone can be accessed using bluetooth and its power level can be changed.
 
 ## Hardware
-*Beacon*: Seeed Studio XIAO ESP32C3: 5-8 USD.
-*Ground station*: WEMOS LOLIN ESP32-C3 mini: 4 USD.
+- *Beacon*: Seeed Studio XIAO ESP32C3: 5-8 USD.
+- *Ground station*: WEMOS LOLIN ESP32-C3 mini: 4 USD.
 
 
