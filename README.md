@@ -20,5 +20,5 @@ A timing system for races. Based on ESP32. Uses Bluetooth Low Energy (BLE).
 - *Beacon*: Seeed Studio XIAO ESP32C3: 5-8 USD.
 - *Ground station*: WEMOS LOLIN ESP32-C3 mini: 4 USD.
 
-## Wiring Diagram
+## Ground Station Wiring Diagram
 ![Wiring Diagram](images/wiring_diagram.png)
