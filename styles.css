@@ -1,0 +1,54 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+}
+
+.center {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+h1 {
+    font-size: 2em;
+    color: #333;
+}
+
+form {
+    margin-top: 1em;
+}
+
+label, select, input {
+    font-size: 1.2em;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th, td {
+    border: 1px solid black;
+    padding: 8px;
+    text-align: center;
+}
+
+th {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.heat-row {
+    background-color: #FFD700;
+}
+
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+#tournament-output {
+    max-height: 80vh;
+    overflow-y: auto;
+}
