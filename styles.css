@@ -35,6 +35,11 @@ th, td {
     text-align: center;
 }
 
+td:first-child {
+    font-weight: bold;
+    background-color: #ADD8E6; /* Light blue */
+}
+
 th {
     background-color: #4CAF50;
     color: white;
