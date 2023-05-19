@@ -54,6 +54,85 @@ tr:nth-child(even) {
 }
 
 #tournament-output {
-    max-height: 80vh;
-    overflow-y: auto;
+    width: 100%;
+    overflow-x: auto; /* will add horizontal scrollbar if table width exceeds container width */
+}
+
+#tournament-output table {
+    width: 100%; /* set table width to take up full container width */
+    table-layout: fixed; /* fixed table layout can give better control over column widths */
+}
+
+.pilot-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+#save-button, #load-button, #standings-button {
+    font-size: 20px;    /* Increase font size */
+    padding: 10px 20px; /* Add some padding to increase the overall size */
+}
+
+#buttons-container {
+    margin-top: 20px;  /* Adjust this value to what suits your design */
+}
+
+#buttons-container {
+    margin: 20px;  /* Adjust this value to what suits your design */
+}
+
+#table-container {
+    max-height: 561px;  /* adjust as needed */
+    overflow-y: auto;  /* enable vertical scrolling */
+}
+
+#standings-modal {
+    display: none;
+    /* other styles... */
+}
+
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0,0,0,0.5); /* Black w/ opacity */
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+}
+
+.modal-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fefefe;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* Could be more or less, depending on screen size */
+    text-align: center;
+    font-size: 1.5em;
+    max-height: 90vh;
+    overflow: auto;
+}
+
+.close {
+    position: absolute;
+    top: 20px;
+    right: 35px;
+    color: #000;
+    font-size: 35px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.close:hover,
+.close:focus {
+    color: red;
+    cursor: pointer;
 }
