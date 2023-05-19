@@ -1,6 +1,6 @@
 # BLE Timing System
 A timing system for races. Based on ESP32. Uses Bluetooth Low Energy (BLE).
-- [Automatic Round Robin Tournament Generator]([url](https://omrijsharon.github.io/BLE_Timing_System/))
+- [Automatic Round Robin Tournament Generator](https://omrijsharon.github.io/BLE_Timing_System/)
 
 ## How to use?
 * Connect a 5V power supply to the ground station USB and position it in the finish gate.
