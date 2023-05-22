@@ -6,6 +6,11 @@ let winsCount = {};
 
 window.onload = function() {
 
+    document.getElementById('play-button').addEventListener('click', function () {
+        var audio = document.getElementById('ready-set-go-audio');
+        audio.play();
+    });
+    
     // Get the modal and close button elements
     let modal = document.getElementById('standings-modal');
     let closeButton = document.querySelector('.close');
