@@ -10,7 +10,6 @@ window.onload = function() {
         var audio = document.getElementById('ready-set-go-audio');
         audio.play();
     });
-    
     // Get the modal and close button elements
     let modal = document.getElementById('standings-modal');
     let closeButton = document.querySelector('.close');
@@ -85,6 +84,11 @@ window.onload = function() {
         // Prevent the form from submitting normally
         event.preventDefault();
 
+        // Reset data from previous tournament
+        pilotNames = {};
+        winners = {};
+        winsCount = {};
+
         // Get input values and convert them to integers
         totalPilots = parseInt(document.getElementById('total-pilots').value, 10);
         let pilotsPerHeat = parseInt(document.getElementById('pilots-per-heat').value, 10);
@@ -102,13 +106,13 @@ window.onload = function() {
 
         // Generate tournament
         tournament = roundRobin(totalPilots, pilotsPerHeat);
+
         // Test tournament
         let matrix = testRoundRobin(tournament, totalPilots, pilotsPerHeat);
 
         // Output tournament
         renderTable(tournament, totalPilots, pilotNames, winners);
-
-    });    
+    }); 
 };
 
 function calculateStandings() {
@@ -148,10 +152,15 @@ function updateStandings() {
     let standings = calculateStandings();
     let standingsList = document.getElementById('standings-list');
     standingsList.innerHTML = '';
+
     for (let i = 0; i < standings.length; i++) {
         let pilot = standings[i][0];
         let wins = standings[i][1];
-        standingsList.innerHTML += pilot + ': ' + wins + ' wins</p>';
+
+        // Don't add the competitor to the list if they have 0 wins
+        if (wins > 0) {
+            standingsList.innerHTML += pilot + ': ' + wins + ' wins</p>';
+        }
     }
 
     // Show the modal
@@ -164,9 +173,19 @@ function selectWinner(event) {
     let round = parseInt(this.getAttribute("data-round"), 10);
     let heat = parseInt(this.getAttribute("data-heat"), 10);
     let pilot = parseInt(this.getAttribute("data-pilot"), 10);
+
+    // Save the previous winner for this round-heat pair
+    let previousWinner = winners[`${round}-${heat}`];
+
+    // If there was a previous winner, decrease their wins count
+    if (previousWinner !== undefined) {
+        winsCount[pilotNames[previousWinner]]--;
+    }
+
+    // Update the winner for this round-heat pair
     winners[`${round}-${heat}`] = pilot;
 
-    // Increase the count of wins for the winning pilot
+    // Increase the wins count for the new winning pilot
     let winnerName = pilotNames[pilot];
     winsCount[winnerName] = (winsCount[winnerName] || 0) + 1;
 

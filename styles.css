@@ -24,6 +24,22 @@ label, select, input {
     font-size: 1.2em;
 }
 
+.center-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 10vh;  /* 10% of the viewport height */
+}
+
+#play-button {
+    width: 100px;
+    height: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 3em;
+}
+
 table {
     border-collapse: collapse;
     width: 100%;
